@@ -61,6 +61,22 @@ app.get('/article/:aid', (request, response) =>
   response.json({[aid]: articleCache.queries[aid]})
 });
 
+app.get('/article/cache', (request, response) =>
+{
+  response.json(articleCache);
+});
+
+app.post('/tx/:address/vote', (request, response) => 
+{
+  let member = request.params.address;
+  let data   = request.body;
+
+  console.log(`Get tx from member ${member}`);
+  console.dir(data);
+ 
+  response.json({tx: {type: 'vote', account: member}});
+});
+
 // Error handling
 app.get('*', (request, response, next) =>
 {
