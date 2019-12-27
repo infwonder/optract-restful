@@ -4,21 +4,22 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const http = require('http');
 const fs = require('fs');
-const OptractMedia = require('./dapps/OptractMedia/OptractMedia.js');
-
 const app = express();
+const WSClient = require('rpc-websockets').Client;
 
-// KnifeIron config
-const cfgObj = JSON.parse(
-  Buffer.from(
-    fs.readFileSync('dapps/config.json')
-  ).toString()
-)
+const connectRPC = (url) => {
+        let opt = new WSClient(url);
 
-const optract = new OptractMedia(cfgObj);
-console.log(optract.configs.dapps[optract.appName].account)
-optract.linkAccount(optract.appName)(optract.configs.dapps[optract.appName].account);
-console.log(optract.userWallet);
+        const __ready = (resolve, reject) =>
+        {
+                opt.on('open',  function(event) { resolve(opt) });
+                opt.on('error', function(error) { console.trace(error); reject(false) });
+        }
+
+        return new Promise(__ready);
+}
+
+const optract = connectRPC('ws://optract-service.default:59437');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -30,6 +31,7 @@ const catchError = (response, error) =>
   response.render("500", {"error": error});
 }
 
+// TODO: we should move this out of here and into optract-service
 let articleCache = JSON.parse(
   Buffer.from(
     fs.readFileSync('caches/articleCache.json')
@@ -38,16 +40,17 @@ let articleCache = JSON.parse(
 
 app.get('/status', (request, response) =>
 {
-  response.json(optract.ethNetStatus())
+  optract.call('ethNetStatus', [])
+         .then((rc) => { response.json(rc) })
+         .catch((err) => { next(err); })
 })
 
 app.get('/membership/:address', (request, response) =>
 {
   let address = request.params.address;
-  optract.memberStatus(address).then((rc) => {
-    response.json(rc);
-  })
-  .catch((err) => { next(err); })
+  optract.call('memberStatus', [address])
+         .then((rc) => { response.json(rc) })
+         .catch((err) => { next(err); })
 })
 
 app.get('/articles', (request, response) =>
