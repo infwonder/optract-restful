@@ -19,8 +19,6 @@ const connectRPC = (url) => {
         return new Promise(__ready);
 }
 
-const optract = connectRPC('ws://optract-service.default:59437');
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -38,59 +36,62 @@ let articleCache = JSON.parse(
   ).toString()
 )
 
-app.get('/status', (request, response) =>
+connectRPC('ws://optract-service.default:59437').then((optract) => 
 {
-  optract.call('ethNetStatus', [])
-         .then((rc) => { response.json(rc) })
-         .catch((err) => { next(err); })
+	app.get('/status', (request, response) =>
+	{
+	  optract.call('ethNetStatus', [])
+		 .then((rc) => { response.json(rc) })
+		 .catch((err) => { next(err); })
+	})
+
+	app.get('/membership/:address', (request, response) =>
+	{
+	  let address = request.params.address;
+	  optract.call('memberStatus', [address])
+		 .then((rc) => { response.json(rc) })
+		 .catch((err) => { next(err); })
+	})
+
+	app.get('/articles', (request, response) =>
+	{
+	  response.json({AID: Object.keys(articleCache.queries).sort()})
+	});
+
+	app.get('/article/:aid', (request, response) =>
+	{
+	  let aid = request.params.aid;
+	  response.json({[aid]: articleCache.queries[aid]})
+	});
+
+	app.get('/article/cache', (request, response) =>
+	{
+	  response.json(articleCache);
+	});
+
+	app.post('/tx/:address/vote', (request, response) => 
+	{
+	  let member = request.params.address;
+	  let data   = request.body;
+
+	  console.log(`Get tx from member ${member}`);
+	  console.dir(data);
+	 
+	  response.json({tx: {type: 'vote', account: member}});
+	});
+
+	// Error handling
+	app.get('*', (request, response, next) =>
+	{
+	  let error = new Error('Page Not Found');
+	  error.statusCode = 404;
+	  next(error);
+	});
+
+	app.use((error, request, response, next) => 
+	{ 
+	  catchError(response, error) 
+	});
+
+	http.createServer(app).listen(8080);
 })
-
-app.get('/membership/:address', (request, response) =>
-{
-  let address = request.params.address;
-  optract.call('memberStatus', [address])
-         .then((rc) => { response.json(rc) })
-         .catch((err) => { next(err); })
-})
-
-app.get('/articles', (request, response) =>
-{
-  response.json({AID: Object.keys(articleCache.queries).sort()})
-});
-
-app.get('/article/:aid', (request, response) =>
-{
-  let aid = request.params.aid;
-  response.json({[aid]: articleCache.queries[aid]})
-});
-
-app.get('/article/cache', (request, response) =>
-{
-  response.json(articleCache);
-});
-
-app.post('/tx/:address/vote', (request, response) => 
-{
-  let member = request.params.address;
-  let data   = request.body;
-
-  console.log(`Get tx from member ${member}`);
-  console.dir(data);
- 
-  response.json({tx: {type: 'vote', account: member}});
-});
-
-// Error handling
-app.get('*', (request, response, next) =>
-{
-  let error = new Error('Page Not Found');
-  error.statusCode = 404;
-  next(error);
-});
-
-app.use((error, request, response, next) => 
-{ 
-  catchError(response, error) 
-});
-
-http.createServer(app).listen(8080);
