@@ -64,7 +64,7 @@ connectRPC('ws://optract-service.default:59437').then((optract) =>
 	  response.json({[aid]: articleCache.queries[aid]})
 	});
 
-	app.get('/article/cache', (request, response) =>
+	app.get('/articles/cache', (request, response) =>
 	{
 	  response.json(articleCache);
 	});
