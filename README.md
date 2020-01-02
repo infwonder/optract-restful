@@ -10,7 +10,7 @@ docker run -d --rm -p 8080:8080 infwonder/optract-restful:latest
 curl localhost:8080/articles
 
 #### article cache dump ####
-curl localhost:8080/article/cache
+curl localhost:8080/articles/cache
 
 #### article one AID ###
 curl localhost:8080/article/__aid__
