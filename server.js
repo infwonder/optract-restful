@@ -40,7 +40,7 @@ connectRPC('ws://optract-service.default:59437').then((optract) =>
 {
 	app.get('/status', (request, response) =>
 	{
-	  response.set('Access-Control-Allow-Origin', 'http://optract.com');
+	  response.set('Access-Control-Allow-Origin', 'http://react.api.optract.com');
 	  optract.call('ethNetStatus', [])
 		 .then((rc) => { response.json(rc) })
 		 .catch((err) => { next(err); })
@@ -48,7 +48,7 @@ connectRPC('ws://optract-service.default:59437').then((optract) =>
 
 	app.get('/membership/:address', (request, response) =>
 	{
-	  response.set('Access-Control-Allow-Origin', 'http://optract.com');
+	  response.set('Access-Control-Allow-Origin', 'http://react.api.optract.com');
 	  let address = request.params.address;
 	  optract.call('memberStatus', [address])
 		 .then((rc) => { response.json(rc) })
@@ -57,20 +57,20 @@ connectRPC('ws://optract-service.default:59437').then((optract) =>
 
 	app.get('/articles', (request, response) =>
 	{
-	  response.set('Access-Control-Allow-Origin', 'http://optract.com');
+	  response.set('Access-Control-Allow-Origin', 'http://react.api.optract.com');
 	  response.json({AID: Object.keys(articleCache.queries).sort()})
 	});
 
 	app.get('/article/:aid', (request, response) =>
 	{
 	  let aid = request.params.aid;
-	  response.set('Access-Control-Allow-Origin', 'http://optract.com');
+	  response.set('Access-Control-Allow-Origin', 'http://react.api.optract.com');
 	  response.json({[aid]: articleCache.queries[aid]})
 	});
 
 	app.get('/articles/cache', (request, response) =>
 	{
-	  response.set('Access-Control-Allow-Origin', 'http://optract.com');
+	  response.set('Access-Control-Allow-Origin', 'http://react.api.optract.com');
 	  response.json(articleCache);
 	});
 
@@ -82,7 +82,7 @@ connectRPC('ws://optract-service.default:59437').then((optract) =>
 	  console.log(`Get tx from member ${member}`);
 	  console.dir(data);
 	 
-	  response.set('Access-Control-Allow-Origin', 'http://optract.com');
+	  response.set('Access-Control-Allow-Origin', 'http://react.api.optract.com');
 	  response.json({tx: {type: 'vote', account: member}});
 	});
 
@@ -91,13 +91,13 @@ connectRPC('ws://optract-service.default:59437').then((optract) =>
 	{
 	  let error = new Error('Page Not Found');
 	  error.statusCode = 404;
-	  response.set('Access-Control-Allow-Origin', 'http://optract.com');
+	  response.set('Access-Control-Allow-Origin', 'http://react.api.optract.com');
 	  next(error);
 	});
 
 	app.use((error, request, response, next) => 
 	{ 
-	  response.set('Access-Control-Allow-Origin', 'http://optract.com');
+	  response.set('Access-Control-Allow-Origin', 'http://react.api.optract.com');
 	  catchError(response, error) 
 	});
 
