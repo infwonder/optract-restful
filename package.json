@@ -15,7 +15,7 @@
     "buttercup": "git+https://github.com/elevenbuckets/buttercup-core.git#localNodeOnly",
     "ethereumjs-tx": "^2.1.1",
     "ethereumjs-utils": "^5.2.5",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "ipfs-http-client": "^40.1.0",
     "rpc-websockets": "^4.3.5",
     "keythereum": "git+https://github.com/elevenbuckets/keythereum.git",
